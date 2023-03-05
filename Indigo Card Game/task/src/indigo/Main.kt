@@ -2,14 +2,61 @@ package indigo
 
 val ranks = arrayOf("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
 val suits = arrayOf("♦", "♥", "♠", "♣")
-val deck = mutableListOf<String>()
 
-val tableHand = mutableListOf<String>()
-val playerHand = mutableListOf<String>()
-val computerHand = mutableListOf<String>()
+class Card(val rank: String, val suit: String) {
+    override fun toString(): String {
+        return "$rank$suit"
+    }
+}
+
+class Deck(empty: Boolean = false) {
+    val deck = mutableListOf<Card>()
+    init {
+        if (!empty) reset()
+    }
+
+    fun reset() {
+        deck.clear()
+        for (suit in suits) for (rank in ranks) deck.add(Card(rank, suit))
+    }
+
+    fun shuffle() {
+        deck.shuffle()
+    }
+
+    fun removeTop(): Card {
+        val topCard = deck.first()
+        deck.removeFirst()
+        return topCard
+    }
+
+    fun add(card: Card) {
+        deck.add(card)
+    }
+
+    fun takeCards(amount: Int, target: Deck) {
+        if (amount in 1 .. 52 && amount <= deck.size) {
+            for (i in 0 until amount) {
+                add(target.removeTop())
+            }
+        }
+    }
+
+}
+
+class Table {
+    init {
+
+    }
+}
+
+open class Player
+
+class Computer : Player()
+class Human : Player()
+
 
 fun main() {
-    reset()
 
     println("Indigo Card Game")
 
@@ -26,43 +73,7 @@ fun playFirst(): Boolean {
 }
 
 fun play() {
-    shuffle()
-    get(4, tableHand)
-    println("Initial cards on the table: ${tableHand.joinToString(" ")}")
 
-}
-
-
-fun reset() {
-    deck.clear()
-    for (suit in suits) for (rank in ranks) deck.add("$rank$suit")
-}
-
-fun shuffle() {
-    deck.shuffle()
-}
-
-fun get(amount: Int, hand: MutableList<String>) {
-
-    if (amount in 1..52 && amount <= deck.size) {
-        for (i in 0 until amount) {
-            hand.add(deck.first())
-            deck.removeFirst()
-        }
-    }
-
-//    if (amount in 1..52) {
-//        if (amount <= deck.size) {
-//            val hand = mutableListOf<String>()
-//            for (i in 0 until amount) {
-//                hand.add(deck.first())
-//                deck.removeFirst()
-//            }
-//            println(hand.joinToString(" "))
-//        } else println("The remaining cards are insufficient to meet the request.")
-//    } else {
-//        println("Invalid number of cards.")
-//    }
 }
 
 fun inputFromPrompt(prompt: String): String {
