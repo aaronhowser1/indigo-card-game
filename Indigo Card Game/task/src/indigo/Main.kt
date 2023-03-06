@@ -9,8 +9,9 @@ class Card(val rank: String, val suit: String) {
     }
 }
 
-class Deck(empty: Boolean = false) {
+class Deck(empty: Boolean) {
     val deck = mutableListOf<Card>()
+
     init {
         if (!empty) reset()
     }
@@ -34,47 +35,63 @@ class Deck(empty: Boolean = false) {
         deck.add(card)
     }
 
-    fun takeCards(amount: Int, target: Deck) {
-        if (amount in 1 .. 52 && amount <= deck.size) {
+    fun takeCards(amount: Int, takeFrom: Deck) {
+        if (amount in 1 .. 52 && amount <= takeFrom.deck.size) {
             for (i in 0 until amount) {
-                add(target.removeTop())
+                add(takeFrom.removeTop())
             }
         }
     }
 
 }
 
-class Table {
-    init {
 
-    }
-}
+class Player(val name: String, val hand: Deck)
 
-open class Player
-
-class Computer : Player()
-class Human : Player()
+var computersTurn = false
 
 
 fun main() {
 
     println("Indigo Card Game")
+    play()
 
-    println(playFirst())
-
-}
-
-fun playFirst(): Boolean {
-    return when (inputFromPrompt("Play first?").lowercase()) {
-        "yes" -> true
-        "no" -> false
-        else -> playFirst()
-    }
 }
 
 fun play() {
 
+    val deck = Deck(empty = false)
+    val table = Player("Table", Deck(empty = true))
+    val player = Player("Player", Deck(empty = true))
+    val computer = Player("Computer", Deck(empty = true))
+
+    deck.shuffle()
+
+    table.hand.takeCards(4, deck)
+
+    playFirstCheck()
+
+    println("Initial cards on the table: ${table.hand.deck.joinToString(" ")}")
+
+
 }
+
+fun playTurn() {
+
+
+    computersTurn = !computersTurn
+}
+
+
+fun playFirstCheck() {
+    when (inputFromPrompt("Play first?").lowercase()) {
+        "yes" -> computersTurn = false
+        "no" -> computersTurn = true
+        else -> playFirstCheck()
+    }
+}
+
+
 
 fun inputFromPrompt(prompt: String): String {
     println(prompt)
