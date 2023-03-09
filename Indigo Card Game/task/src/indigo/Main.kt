@@ -81,19 +81,21 @@ fun play() {
     playFirstCheck()
 
     println("Initial cards on the table: ${table.deck.joinToString(" ")}")
-    println("\n${table.deck.size} cards on the table, and the top card is ${topCard(table)}")
 
 
     while (!gameOver) {
         playTurn()
-        if (table.deck.size == 52) gameOver = true
-        println("\n${table.deck.size} cards on the table, and the top card is ${topCard(table)}")
+        if (table.deck.size == 52) {
+            println("\n${table.deck.size} cards on the table, and the top card is ${topCard(table)}")
+            gameOver = true
+        }
     }
 
     println("Game Over")
 }
 
 fun playTurn() {
+    println("\n${table.deck.size} cards on the table, and the top card is ${topCard(table)}")
     val currentPlayer = if (computersTurn) computer else player
 
     if (currentPlayer.deck.isEmpty()) currentPlayer.takeCards(6, remainingCards)
@@ -115,7 +117,7 @@ fun playersTurn() {
     val pickedCardIndex: Int
 
     while (true) {
-        val cardNumber = inputFromPrompt("Choose a card to play: (1-${deckSize})")
+        val cardNumber = inputFromPrompt("Choose a card to play (1-${deckSize}): ")
 //        println("Choose a card to play: (1-${deckSize})")
 //        val cardNumber = "1"
 
