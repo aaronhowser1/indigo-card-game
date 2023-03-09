@@ -1,7 +1,27 @@
 package indigo
 
-val ranks = arrayOf("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
-val suits = arrayOf("♦", "♥", "♠", "♣")
+enum class Ranks(val rankName: String, val points: Int) {
+    A("A",1),
+    TWO("2", 0),
+    THREE("3",0),
+    FOUR("4",0),
+    FIVE("5",0),
+    SIX("6",0),
+    SEVEN("7",0),
+    EIGHT("8",0),
+    NINE("9",0),
+    TEN("10",1),
+    JOKER("J",1),
+    QUEEN("Q",1),
+    KING("K",1)
+}
+
+enum class Suits(val suitName: String) {
+    DIAMOND("♦"),
+    HEART("♥"),
+    CLUB("♠"),
+    SPADE("♣")
+}
 
 class Card(val rank: String, val suit: String) {
     override fun toString(): String {
@@ -18,7 +38,7 @@ class Deck(val name: String, empty: Boolean) {
 
     fun reset() {
         deck.clear()
-        for (suit in suits) for (rank in ranks) deck.add(Card(rank, suit))
+        for (suit in Suits.values()) for (rank in Ranks.values()) deck.add(Card(rank.rankName, suit.suitName))
     }
 
     fun shuffle() {
@@ -30,6 +50,8 @@ class Deck(val name: String, empty: Boolean) {
         deck.removeFirst()
         return topCard
     }
+
+    fun checkCard(index: Int): Card = deck[index]
 
     fun removeCard(index: Int): Card {
         val card = deck[index]
