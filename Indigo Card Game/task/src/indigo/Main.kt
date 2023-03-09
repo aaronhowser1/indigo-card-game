@@ -36,7 +36,7 @@ class Deck(empty: Boolean) {
         if (!empty) reset()
     }
 
-    fun topCard(): Card = deck.last()
+    fun topCard(): Card? = deck.lastOrNull()
 
     fun reset() {
         deck.clear()
@@ -53,7 +53,7 @@ class Deck(empty: Boolean) {
         return topCard
     }
 
-    fun checkCard(index: Int): Card = deck[index]
+    fun getCard(index: Int): Card = deck[index]
 
     fun removeCard(index: Int): Card {
         val card = deck[index]
@@ -81,7 +81,7 @@ class Deck(empty: Boolean) {
 
 }
 
-class Player(val hand: Deck) {
+class Player(val name: String, val hand: Deck) {
     val wonCards = Deck(empty = true)
 
     val score: Int
@@ -98,8 +98,8 @@ var gameOver = false
 
 val remainingCards = Deck(empty = false)
 val table = Deck(empty = true)
-val player = Player(Deck(empty = true))
-val computer = Player(Deck(empty = true))
+val player = Player("Player", Deck(empty = true))
+val computer = Player("Computer", Deck(empty = true))
 
 fun main() {
 
@@ -122,7 +122,7 @@ fun play() {
     while (!gameOver) {
         playTurn()
         if (table.deck.size == 52) {
-            println("\n${table.deck.size} cards on the table, and the top card is ${table.topCard()}")
+            printTableCards()
             gameOver = true
         }
     }
@@ -131,7 +131,7 @@ fun play() {
 }
 
 fun playTurn() {
-    println("\n${table.deck.size} cards on the table, and the top card is ${table.topCard()}")
+    printTableCards()
     val currentPlayer = if (computersTurn) computer else player
 
     if (currentPlayer.hand.deck.isEmpty()) currentPlayer.hand.takeCards(6, remainingCards)
@@ -168,17 +168,34 @@ fun playersTurn() {
         }
     }
 
-    val cardsMatch = checkCardMatch(player.hand.checkCard(pickedCardIndex), table.deck.last())
+    val cardsMatch = checkCardMatch(player.hand.getCard(pickedCardIndex), table.deck.last())
 
     table.takeCard(pickedCardIndex, player.hand)
 
-    if (cardsMatch) {}
+    if (cardsMatch) clearTable(player)
 
 }
 
 fun computersTurn() {
-    println("Computer plays ${computer.hand.deck[0]}")
+    println("Computer plays ${computer.hand.getCard(0)}")
+    val cardsMatch = checkCardMatch(computer.hand.getCard(0), table.deck.lastOrNull())
+
     table.takeCard(0, computer.hand)
+
+    if (cardsMatch) clearTable(computer)
+}
+
+fun clearTable(winner: Player) {
+
+    winner.wonCards.deck += table.deck
+    table.deck.clear()
+
+    println("""
+        ${winner.name} wins cards
+        Score: Player ${player.score} - Computer ${computer.score}
+        Cards: Player ${player.wonCards.deck.size} - Computer ${computer.wonCards.deck.size}
+    """.trimIndent())
+
 }
 
 fun playFirstCheck() {
@@ -189,11 +206,22 @@ fun playFirstCheck() {
     }
 }
 
-fun checkCardMatch(card1: Card, card2: Card): Boolean {
+fun checkCardMatch(card1: Card?, card2: Card?): Boolean {
+
+    if (card1 == null || card2 == null) return false
+
     return (card1.rank == card2.rank || card1.suit == card2.suit)
 }
 
 fun inputFromPrompt(prompt: String): String {
     println(prompt)
     return readln()
+}
+
+fun printTableCards() {
+    if (table.deck.isEmpty()) {
+        println("\nNo cards on the table")
+    } else {
+        println("\n${table.deck.size} cards on the table, and the top card is ${table.topCard()}")
+    }
 }
