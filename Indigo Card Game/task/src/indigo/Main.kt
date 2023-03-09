@@ -9,7 +9,7 @@ class Card(val rank: String, val suit: String) {
     }
 }
 
-class Deck(empty: Boolean) {
+class Deck(val name: String, empty: Boolean) {
     val deck = mutableListOf<Card>()
 
     init {
@@ -42,7 +42,7 @@ class Deck(empty: Boolean) {
     }
 
     fun takeCard(index: Int, takeFrom: Deck) {
-        if (index in 1..takeFrom.deck.size) {
+        if (index in 0 until takeFrom.deck.size) {
             add(takeFrom.removeCard(index))
         }
     }
@@ -57,16 +57,13 @@ class Deck(empty: Boolean) {
 
 }
 
-
-class Player(val name: String, val hand: Deck)
-
 var computersTurn = false
 var gameOver = false
 
-val deck = Deck(empty = false)
-val table = Player("Table", Deck(empty = true))
-val player = Player("Player", Deck(empty = true))
-val computer = Player("Computer", Deck(empty = true))
+val remainingCards = Deck("deck", empty = false)
+val table = Deck("table", empty = true)
+val player = Deck("player", empty = true)
+val computer = Deck("computer", empty = true)
 
 fun main() {
 
@@ -77,13 +74,13 @@ fun main() {
 
 fun play() {
 
-    deck.shuffle()
+    remainingCards.shuffle()
 
-    table.hand.takeCards(4, deck)
+    table.takeCards(4, remainingCards)
 
     playFirstCheck()
 
-    println("Initial cards on the table: ${table.hand.deck.joinToString(" ")}")
+    println("Initial cards on the table: ${table.deck.joinToString(" ")}")
 
 
     while (!gameOver) {
@@ -94,10 +91,10 @@ fun play() {
 }
 
 fun playTurn() {
-    println("\n${table.hand.deck.size} cards on the table, and the top card is ${topCard(table.hand)}")
+    println("\n${table.deck.size} cards on the table, and the top card is ${topCard(table)}")
     val currentPlayer = if (computersTurn) computer else player
 
-    if (currentPlayer.hand.deck.isEmpty()) currentPlayer.hand.takeCards(6, deck)
+    if (currentPlayer.deck.isEmpty()) currentPlayer.takeCards(6, remainingCards)
     if (computersTurn) computersTurn() else playersTurn()
 
     computersTurn = !computersTurn
@@ -106,12 +103,12 @@ fun playTurn() {
 fun playersTurn() {
 
     print("Cards in hand:")
-    for (i in 0 until player.hand.deck.size) {
-        print(" ${i+1})${player.hand.deck[i]}")
+    for (i in 0 until player.deck.size) {
+        print(" ${i+1})${player.deck[i]}")
     }
     print("\n")
 
-    val deckSize = player.hand.deck.size
+    val deckSize = player.deck.size
 
     val pickedCardIndex: Int
 
@@ -129,8 +126,7 @@ fun playersTurn() {
         }
     }
 
-    //TODO: figure out why this isn't taking index 0 cards
-    table.hand.takeCard(pickedCardIndex, player.hand)
+    table.takeCard(pickedCardIndex, player)
 
 }
 
