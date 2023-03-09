@@ -36,6 +36,8 @@ class Deck(empty: Boolean) {
         if (!empty) reset()
     }
 
+    fun topCard(): Card = deck.last()
+
     fun reset() {
         deck.clear()
         for (suit in Suit.values()) for (rank in Rank.values()) deck.add(Card(rank, suit))
@@ -80,7 +82,15 @@ class Deck(empty: Boolean) {
 }
 
 class Player(val hand: Deck) {
-    val score = Deck(empty = true)
+    val wonCards = Deck(empty = true)
+
+    val score: Int
+        get() {
+            var cardPointTotal = 0
+            for (card in wonCards.deck) cardPointTotal+=card.rank.points
+            return cardPointTotal
+        }
+
 }
 
 var computersTurn = false
@@ -112,7 +122,7 @@ fun play() {
     while (!gameOver) {
         playTurn()
         if (table.deck.size == 52) {
-            println("\n${table.deck.size} cards on the table, and the top card is ${topCard(table)}")
+            println("\n${table.deck.size} cards on the table, and the top card is ${table.topCard()}")
             gameOver = true
         }
     }
@@ -121,7 +131,7 @@ fun play() {
 }
 
 fun playTurn() {
-    println("\n${table.deck.size} cards on the table, and the top card is ${topCard(table)}")
+    println("\n${table.deck.size} cards on the table, and the top card is ${table.topCard()}")
     val currentPlayer = if (computersTurn) computer else player
 
     if (currentPlayer.hand.deck.isEmpty()) currentPlayer.hand.takeCards(6, remainingCards)
@@ -158,17 +168,17 @@ fun playersTurn() {
         }
     }
 
+    val cardsMatch = checkCardMatch(player.hand.checkCard(pickedCardIndex), table.deck.last())
+
     table.takeCard(pickedCardIndex, player.hand)
+
+    if (cardsMatch) {}
 
 }
 
 fun computersTurn() {
     println("Computer plays ${computer.hand.deck[0]}")
     table.takeCard(0, computer.hand)
-}
-
-fun topCard(deck: Deck): Card {
-    return deck.deck.last()
 }
 
 fun playFirstCheck() {
@@ -179,7 +189,9 @@ fun playFirstCheck() {
     }
 }
 
-
+fun checkCardMatch(card1: Card, card2: Card): Boolean {
+    return (card1.rank == card2.rank || card1.suit == card2.suit)
+}
 
 fun inputFromPrompt(prompt: String): String {
     println(prompt)
