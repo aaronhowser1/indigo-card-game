@@ -1,6 +1,6 @@
 package indigo
 
-enum class Ranks(val rankName: String, val points: Int) {
+enum class Rank(val rankName: String, val points: Int) {
     A("A",1),
     TWO("2", 0),
     THREE("3",0),
@@ -16,20 +16,20 @@ enum class Ranks(val rankName: String, val points: Int) {
     KING("K",1)
 }
 
-enum class Suits(val suitName: String) {
+enum class Suit(val suitName: String) {
     DIAMOND("♦"),
     HEART("♥"),
-    CLUB("♠"),
-    SPADE("♣")
+    CLUB("♣"),
+    SPADE("♠")
 }
 
-class Card(val rank: String, val suit: String) {
+class Card(val rank: Rank, val suit: Suit) {
     override fun toString(): String {
-        return "$rank$suit"
+        return "${rank.rankName}${suit.suitName}"
     }
 }
 
-class Deck(val name: String, empty: Boolean) {
+class Deck(empty: Boolean) {
     val deck = mutableListOf<Card>()
 
     init {
@@ -38,7 +38,7 @@ class Deck(val name: String, empty: Boolean) {
 
     fun reset() {
         deck.clear()
-        for (suit in Suits.values()) for (rank in Ranks.values()) deck.add(Card(rank.rankName, suit.suitName))
+        for (suit in Suit.values()) for (rank in Rank.values()) deck.add(Card(rank, suit))
     }
 
     fun shuffle() {
@@ -79,13 +79,17 @@ class Deck(val name: String, empty: Boolean) {
 
 }
 
+class Player(val hand: Deck) {
+    val score = Deck(empty = true)
+}
+
 var computersTurn = false
 var gameOver = false
 
-val remainingCards = Deck("deck", empty = false)
-val table = Deck("table", empty = true)
-val player = Deck("player", empty = true)
-val computer = Deck("computer", empty = true)
+val remainingCards = Deck(empty = false)
+val table = Deck(empty = true)
+val player = Player(Deck(empty = true))
+val computer = Player(Deck(empty = true))
 
 fun main() {
 
@@ -120,7 +124,7 @@ fun playTurn() {
     println("\n${table.deck.size} cards on the table, and the top card is ${topCard(table)}")
     val currentPlayer = if (computersTurn) computer else player
 
-    if (currentPlayer.deck.isEmpty()) currentPlayer.takeCards(6, remainingCards)
+    if (currentPlayer.hand.deck.isEmpty()) currentPlayer.hand.takeCards(6, remainingCards)
     if (computersTurn) computersTurn() else playersTurn()
 
     computersTurn = !computersTurn
@@ -129,12 +133,12 @@ fun playTurn() {
 fun playersTurn() {
 
     print("Cards in hand:")
-    for (i in 0 until player.deck.size) {
-        print(" ${i+1})${player.deck[i]}")
+    for (i in 0 until player.hand.deck.size) {
+        print(" ${i+1})${player.hand.deck[i]}")
     }
     print("\n")
 
-    val deckSize = player.deck.size
+    val deckSize = player.hand.deck.size
 
     val pickedCardIndex: Int
 
@@ -154,13 +158,13 @@ fun playersTurn() {
         }
     }
 
-    table.takeCard(pickedCardIndex, player)
+    table.takeCard(pickedCardIndex, player.hand)
 
 }
 
 fun computersTurn() {
-    println("Computer plays ${computer.deck[0]}")
-    table.takeCard(0, computer)
+    println("Computer plays ${computer.hand.deck[0]}")
+    table.takeCard(0, computer.hand)
 }
 
 fun topCard(deck: Deck): Card {
