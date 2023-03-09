@@ -1,5 +1,7 @@
 package indigo
 
+import kotlin.math.min
+
 enum class Rank(val rankName: String, val points: Int) {
     A("A",1),
     TWO("2", 0),
@@ -121,7 +123,7 @@ fun play() {
 
     while (!gameOver) {
         playTurn()
-        if (table.deck.size == 52) {
+        if (remainingCards.deck.isEmpty()) {
             printTableCards()
             gameOver = true
         }
@@ -132,9 +134,25 @@ fun play() {
 
 fun playTurn() {
     printTableCards()
+
+//    println("""
+//        Table deck:
+//            Size: ${table.deck.size}
+//            Cards: ${table.deck.joinToString(" ")}
+//        Computer deck:
+//            Size: ${computer.hand.deck.size}
+//            Cards: ${computer.hand.deck.joinToString(" ")}
+//        Player deck:
+//            Size: ${player.hand.deck.size}
+//            Cards: ${player.hand.deck.joinToString(" ")}
+//    """.trimIndent())
+
     val currentPlayer = if (computersTurn) computer else player
 
-    if (currentPlayer.hand.deck.isEmpty()) currentPlayer.hand.takeCards(6, remainingCards)
+    if (currentPlayer.hand.deck.isEmpty()) {
+        val cardsLeft = remainingCards.deck.size
+        currentPlayer.hand.takeCards(min(6, cardsLeft), remainingCards)
+    }
     if (computersTurn) computersTurn() else playersTurn()
 
     computersTurn = !computersTurn
@@ -153,9 +171,12 @@ fun playersTurn() {
     val pickedCardIndex: Int
 
     while (true) {
-        val cardNumber = inputFromPrompt("Choose a card to play (1-${deckSize}): ")
-//        println("Choose a card to play: (1-${deckSize})")
-//        val cardNumber = "1"
+//        val cardNumber = inputFromPrompt("Choose a card to play (1-${deckSize}): ")
+        println("Choose a card to play: (1-${deckSize})")
+        val cardNumber = "1"
+
+        //TODO: When both players have no cards in hand, go to step 2 unless there are no more remaining cards in the card deck.
+        //TODO: The remaining cards on the table go to the player who won the cards last. In the rare case where none of the players win any cards, then all cards go to the player who played first.
 
         if (cardNumber.lowercase() == "exit") {
             gameOver = true
@@ -168,7 +189,7 @@ fun playersTurn() {
         }
     }
 
-    val cardsMatch = checkCardMatch(player.hand.getCard(pickedCardIndex), table.deck.last())
+    val cardsMatch = checkCardMatch(player.hand.getCard(pickedCardIndex), table.deck.lastOrNull())
 
     table.takeCard(pickedCardIndex, player.hand)
 
