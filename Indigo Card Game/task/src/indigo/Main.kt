@@ -2,16 +2,19 @@ package indigo
 
 import kotlin.math.min
 
-enum class Rank(val rankName: String, val points: Int) {
+const val deckDebug = false
+const val autoPlay = true
+
+enum class Rank(val rankName: String, val points: Int = 0) {
     A("A",1),
-    TWO("2", 0),
-    THREE("3",0),
-    FOUR("4",0),
-    FIVE("5",0),
-    SIX("6",0),
-    SEVEN("7",0),
-    EIGHT("8",0),
-    NINE("9",0),
+    TWO("2"),
+    THREE("3"),
+    FOUR("4"),
+    FIVE("5"),
+    SIX("6"),
+    SEVEN("7"),
+    EIGHT("8"),
+    NINE("9"),
     TEN("10",1),
     JOKER("J",1),
     QUEEN("Q",1),
@@ -133,24 +136,24 @@ fun play() {
 fun playTurn() {
 
     if (remainingCards.deck.isEmpty() && player.hand.deck.isEmpty() && computer.hand.deck.isEmpty()) {
-        if (computersTurn) clearTable(computer) else clearTable(player)
+        if (computersTurn) clearTable(computer, printWinner = false) else clearTable(player, printWinner = false)
         gameOver = true
         return
     }
 
     printTableCards()
 
-//    println("""
-//        Table deck:
-//            Size: ${table.deck.size}
-//            Cards: ${table.deck.joinToString(" ")}
-//        Computer deck:
-//            Size: ${computer.hand.deck.size}
-//            Cards: ${computer.hand.deck.joinToString(" ")}
-//        Player deck:
-//            Size: ${player.hand.deck.size}
-//            Cards: ${player.hand.deck.joinToString(" ")}
-//    """.trimIndent())
+    if (deckDebug) println("""
+        Table deck:
+            Size: ${table.deck.size}
+            Cards: ${table.deck.joinToString(" ")}
+        Computer deck:
+            Size: ${computer.hand.deck.size}
+            Cards: ${computer.hand.deck.joinToString(" ")}
+        Player deck:
+            Size: ${player.hand.deck.size}
+            Cards: ${player.hand.deck.joinToString(" ")}
+    """.trimIndent())
 
     val currentPlayer = if (computersTurn) computer else player
 
@@ -176,9 +179,12 @@ fun playersTurn() {
     val pickedCardIndex: Int
 
     while (true) {
-//        val cardNumber = inputFromPrompt("Choose a card to play (1-${deckSize}): ")
-        println("Choose a card to play: (1-${deckSize})")
-        val cardNumber = "1"
+        val cardNumber = if (autoPlay) {
+            println("Choose a card to play: (1-${deckSize})")
+            "1"
+        } else {
+            inputFromPrompt("Choose a card to play (1-${deckSize}): ")
+        }
 
         if (cardNumber.lowercase() == "exit") {
             gameOver = true
@@ -214,13 +220,14 @@ fun computersTurn() {
     }
 }
 
-fun clearTable(winner: Player) {
+fun clearTable(winner: Player, printWinner: Boolean = true) {
 
     winner.wonCards.deck += table.deck
     table.deck.clear()
 
+    if (printWinner) println("${winner.name} wins cards")
+
     println("""
-        ${winner.name} wins cards
         Score: Player ${player.score} - Computer ${computer.score}
         Cards: Player ${player.wonCards.deck.size} - Computer ${computer.wonCards.deck.size}
     """.trimIndent())
@@ -228,10 +235,12 @@ fun clearTable(winner: Player) {
 }
 
 fun playFirstCheck() {
-    when (inputFromPrompt("Play first?").lowercase()) {
-        "yes" -> computersTurn = false
-        "no" -> computersTurn = true
-        else -> playFirstCheck()
+    if (autoPlay) {computersTurn = false} else {
+        when (inputFromPrompt("Play first?").lowercase()) {
+            "yes" -> computersTurn = false
+            "no" -> computersTurn = true
+            else -> playFirstCheck()
+        }
     }
 }
 
