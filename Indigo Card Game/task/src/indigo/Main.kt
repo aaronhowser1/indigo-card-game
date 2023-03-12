@@ -103,6 +103,8 @@ val table = Deck(empty = true)
 val player = Player("Player", Deck(empty = true))
 val computer = Player("Computer", Deck(empty = true))
 
+var mostRecentWinner: Player? = null
+
 fun main() {
 
     println("Indigo Card Game")
@@ -123,16 +125,19 @@ fun play() {
 
     while (!gameOver) {
         playTurn()
-        if (remainingCards.deck.isEmpty()) {
-            printTableCards()
-            gameOver = true
-        }
     }
 
     println("Game Over")
 }
 
 fun playTurn() {
+
+    if (remainingCards.deck.isEmpty() && player.hand.deck.isEmpty() && computer.hand.deck.isEmpty()) {
+        if (computersTurn) clearTable(computer) else clearTable(player)
+        gameOver = true
+        return
+    }
+
     printTableCards()
 
 //    println("""
@@ -175,9 +180,6 @@ fun playersTurn() {
         println("Choose a card to play: (1-${deckSize})")
         val cardNumber = "1"
 
-        //TODO: When both players have no cards in hand, go to step 2 unless there are no more remaining cards in the card deck.
-        //TODO: The remaining cards on the table go to the player who won the cards last. In the rare case where none of the players win any cards, then all cards go to the player who played first.
-
         if (cardNumber.lowercase() == "exit") {
             gameOver = true
             return
@@ -193,7 +195,10 @@ fun playersTurn() {
 
     table.takeCard(pickedCardIndex, player.hand)
 
-    if (cardsMatch) clearTable(player)
+    if (cardsMatch) {
+        clearTable(player)
+        mostRecentWinner = player
+    }
 
 }
 
@@ -203,7 +208,10 @@ fun computersTurn() {
 
     table.takeCard(0, computer.hand)
 
-    if (cardsMatch) clearTable(computer)
+    if (cardsMatch) {
+        clearTable(computer)
+        mostRecentWinner = computer
+    }
 }
 
 fun clearTable(winner: Player) {
