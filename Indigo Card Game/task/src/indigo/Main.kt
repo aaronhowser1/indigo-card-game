@@ -133,23 +133,18 @@ fun play() {
         playTurn()
     }
 
-    if (gameOver != "exit") {
+    //Game won, tally points
+    val playerCardCount = player.wonCards.deck.size
+    val computerCardCount = computer.wonCards.deck.size
+    val mostCards =
+        if (playerCardCount == computerCardCount) firstPlayer
+        else if (playerCardCount > computerCardCount) player
+        else computer
 
-        printTableCards()
-        if (computersTurn) clearTable(computer, printWinner = false) else clearTable(player, printWinner = false)
+    mostCards?.additionalPoints = 3
 
-        //Game won, tally points
-        val playerCardCount = player.wonCards.deck.size
-        val computerCardCount = computer.wonCards.deck.size
-        val mostCards =
-            if (playerCardCount == computerCardCount) firstPlayer
-            else if (playerCardCount > computerCardCount) player
-            else computer
-
-        mostCards?.additionalPoints = 3
-    }
-
-    deckDebug(checkHand = false)
+    printTableCards()
+    if (computersTurn) clearTable(computer, printWinner = false) else clearTable(player, printWinner = false)
 
     println("Game Over")
 }
@@ -163,7 +158,17 @@ fun playTurn() {
 
     printTableCards()
 
-    deckDebug()
+    if (deckDebug) println("""
+        Table deck:
+            Size: ${table.deck.size}
+            Cards: ${table.deck.joinToString(" ")}
+        Computer deck:
+            Size: ${computer.hand.deck.size}
+            Cards: ${computer.hand.deck.joinToString(" ")}
+        Player deck:
+            Size: ${player.hand.deck.size}
+            Cards: ${player.hand.deck.joinToString(" ")}
+    """.trimIndent())
 
     val currentPlayer = if (computersTurn) computer else player
 
@@ -277,34 +282,5 @@ fun printTableCards() {
         println("\nNo cards on the table")
     } else {
         println("\n${table.deck.size} cards on the table, and the top card is ${table.topCard()}")
-    }
-}
-
-fun deckDebug(checkHand: Boolean = true) {
-    if (deckDebug) {
-        if (checkHand) {
-            println("""
-        Table deck:
-            Size: ${table.deck.size}
-            Cards: ${table.deck.joinToString(" ")}
-        Player deck:
-            Size: ${player.hand.deck.size}
-            Cards: ${player.hand.deck.joinToString(" ")}
-        Computer deck:
-            Size: ${computer.hand.deck.size}
-            Cards: ${computer.hand.deck.joinToString(" ")}
-    """.trimIndent())
-        } else {
-            println("""
-                Player won cards:
-                    Size: ${player.wonCards.deck.size}
-                    Additional points: ${player.additionalPoints}
-                    Total score: ${player.score}
-                Computer won cards:
-                    Size: ${computer.wonCards.deck.size}
-                    Additional points: ${computer.additionalPoints}
-                    Total score: ${computer.score}
-            """.trimIndent())
-        }
     }
 }
