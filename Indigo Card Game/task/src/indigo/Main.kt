@@ -233,16 +233,14 @@ fun playersTurn() {
 fun computersTurn() {
     if (computer.hand.deck.size == 1) {
 
-        //If there is only one card in hand, put it on the table
+        // 1) If there is only one card in hand, put it on the table
         computerPlayCard(0)
-
     } else {
 
-        val candidateCards = computerGetCandidateCards()
-
+        val candidateCards = getCandidateCards()
         if (candidateCards.size == 1) {
 
-            //If there is only one candidate card, put it on the table
+            // 2) If there is only one candidate card, put it on the table
             val candidateCard = candidateCards.first()
             val candidateCardIndex = computer.hand.deck.indexOf(candidateCard)
 
@@ -250,10 +248,45 @@ fun computersTurn() {
             return
         }
 
-        val doubles = computerGetDoubleCards()
-        val cardsSameSuit = doubles.first()
-        val cardsSameRank = doubles.last()
+        // 3) If there are no cards on the table:
+        // 4) If there are cards on the table but no candidate cards, use the same tactics as in step 3:
+        if (table.deck.size == 0 || candidateCards.size == 0) {
 
+            val doubles = getDoubleCards(computer.hand)
+            val cardsSameSuit = doubles.first()
+            val cardsSameRank = doubles.last()
+
+            // 3a) If there are cards in hand with the same suit, throw one of them at random
+            if (cardsSameSuit.isNotEmpty()) {
+                val randomCard = cardsSameSuit.random()
+                val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+
+                computerPlayCard(randomCardIndex)
+                return
+            }
+
+            // 3b) If there are no cards in hand with the same suit, but there are cards with the same rank
+            // (this situation occurs only when there are 4 or fewer cards in hand),
+            // then throw one of them at random
+            if (cardsSameRank.isNotEmpty()) {
+                val randomCard = cardsSameRank.random()
+                val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+
+                computerPlayCard(randomCardIndex)
+                return
+            }
+
+            // 3c) If there are no cards in hand with the same suit or rank, throw any card at random
+            val randomCard = computer.hand.deck.random()
+            val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+            computerPlayCard(randomCardIndex)
+            return
+        }
+
+        // 5) If there are two or more candidate cards:
+        if (candidateCards.size >= 2) {
+            //TODO
+        }
 
     }
 }
@@ -270,7 +303,7 @@ fun computerPlayCard(index: Int) {
     }
 }
 
-fun computerGetCandidateCards(): MutableList<Card> {
+fun getCandidateCards(): MutableList<Card> {
     val candidateCards = mutableListOf<Card>()
     for (card in computer.hand.deck) {
         val topTableCard = table.topCard()
@@ -279,15 +312,15 @@ fun computerGetCandidateCards(): MutableList<Card> {
     return candidateCards
 }
 
-fun computerGetDoubleCards(): Array<MutableList<Card>>{
+fun getDoubleCards(deck: Deck): Array<MutableList<Card>>{
 
     val cardsSameSuit = mutableListOf<Card>()
     val cardsSameRank = mutableListOf<Card>()
     val doubles = arrayOf(cardsSameSuit, cardsSameRank)
 
-    for (card1 in computer.hand.deck) {
+    for (card1 in deck.deck) {
         val copyHand = computer.hand.copy()
-        copyHand.removeCard(computer.hand.deck.indexOf(card1))
+        copyHand.removeCard(deck.deck.indexOf(card1))
 
         val suit1 = card1.suit
         val rank1 = card1.rank
