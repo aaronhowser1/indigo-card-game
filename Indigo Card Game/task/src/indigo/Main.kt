@@ -28,13 +28,13 @@ enum class Suit(val suitName: String) {
     SPADE("♠")
 }
 
-class Card(val rank: Rank, val suit: Suit) {
+data class Card(val rank: Rank, val suit: Suit) {
     override fun toString(): String {
         return "${rank.rankName}${suit.suitName}"
     }
 }
 
-class Deck(empty: Boolean) {
+data class Deck(val empty: Boolean) {
     val deck = mutableListOf<Card>()
 
     init {
@@ -231,6 +231,20 @@ fun playersTurn() {
 }
 
 fun computersTurn() {
+    if (computer.hand.deck.size == 1) {
+        computerPlayOnlyCard()
+    } else {
+
+        val candidateCards = computerGetCandidateCards()
+        val doubles = computerGetDoubleCards()
+        val cardsSameSuit = doubles.first()
+        val cardsSameRank = doubles.last()
+
+
+    }
+}
+
+fun computerPlayOnlyCard() {
     println("Computer plays ${computer.hand.getCard(0)}")
     val cardsMatch = checkCardMatch(computer.hand.getCard(0), table.deck.lastOrNull())
 
@@ -241,6 +255,49 @@ fun computersTurn() {
         mostRecentWinner = computer
     }
 }
+
+fun computerGetCandidateCards(): MutableList<Card> {
+    val candidateCards = mutableListOf<Card>()
+    for (card in computer.hand.deck) {
+        val topTableCard = table.topCard()
+        if (checkCardMatch(topTableCard, card)) candidateCards.add(card)
+    }
+    return candidateCards
+}
+
+fun computerGetDoubleCards(): Array<MutableList<Card>>{
+
+    val cardsSameSuit = mutableListOf<Card>()
+    val cardsSameRank = mutableListOf<Card>()
+    val doubles = arrayOf(cardsSameSuit, cardsSameRank)
+
+    for (card1 in computer.hand.deck) {
+        val copyHand = computer.hand.copy()
+        copyHand.removeCard(computer.hand.deck.indexOf(card1))
+
+        val suit1 = card1.suit
+        val rank1 = card1.rank
+
+        for (card2 in copyHand.deck) {
+            val suit2 = card2.suit
+            val rank2 = card2.rank
+
+            if (suit1 == suit2) {
+                if (!cardsSameSuit.contains(card1)) cardsSameSuit.add(card1)
+                if (!cardsSameSuit.contains(card2)) cardsSameSuit.add(card2)
+            }
+            if (rank1 == rank2) {
+                if (!cardsSameRank.contains(card1)) cardsSameRank.add(card1)
+                if (!cardsSameRank.contains(card2)) cardsSameRank.add(card2)
+            }
+        }
+    }
+
+    return doubles
+
+}
+
+
 
 fun clearTable(winner: Player, printWinner: Boolean = true) {
 
