@@ -102,6 +102,7 @@ class Player(val name: String, val hand: Deck) {
 
 var computersTurn = false
 var gameOver = false
+var quit = false
 
 val remainingCards = Deck(empty = false)
 val table = Deck(empty = true)
@@ -133,20 +134,25 @@ fun play() {
         playTurn()
     }
 
-    //Game won, tally points
-    val playerCardCount = player.wonCards.deck.size
-    val computerCardCount = computer.wonCards.deck.size
-    val mostCards =
-        if (playerCardCount == computerCardCount) firstPlayer
-        else if (playerCardCount > computerCardCount) player
-        else computer
+    if (!quit) {
+        //Game won, tally points
+        val playerCardCount = player.wonCards.deck.size
+        val computerCardCount = computer.wonCards.deck.size
+        val mostCards =
+            if (playerCardCount == computerCardCount) firstPlayer
+            else if (playerCardCount > computerCardCount) player
+            else computer
 
-    mostCards?.additionalPoints = 3
+        mostCards?.additionalPoints = 3
 
-    printTableCards()
-    if (computersTurn) clearTable(computer, printWinner = false) else clearTable(player, printWinner = false)
+        printTableCards()
+        if (computersTurn) clearTable(computer, printWinner = false) else clearTable(player, printWinner = false)
 
-    println("Game Over")
+        println("Game Over")
+    } else {
+        println("Game Over")
+    }
+
 }
 
 fun playTurn() {
@@ -203,6 +209,7 @@ fun playersTurn() {
 
         if (cardNumber.lowercase() == "exit") {
             gameOver = true
+            quit = true
             return
         }
 
