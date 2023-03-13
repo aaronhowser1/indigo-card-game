@@ -285,7 +285,16 @@ fun computersTurn() {
 
         // 5) If there are two or more candidate cards:
         if (candidateCards.size >= 2) {
-            //TODO
+
+            val candidateDeck = Deck(empty = true)
+            for (card in candidateCards) candidateDeck.add(card)
+
+            // 5a) If there are 2 or more candidate cards with the same suit as the top card on the table, throw one of them at random
+
+            // 5b) If the above isn't applicable, but there are 2 or more candidate cards with the same rank as the top card on the table, throw one of them at random
+
+            // 5c) If nothing of the above is applicable, then throw any of the candidate cards at random.
+
         }
 
     }
