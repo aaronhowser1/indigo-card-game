@@ -1,6 +1,7 @@
 package indigo
 
 import kotlin.math.min
+import kotlin.random.Random
 
 const val deckDebug = false
 const val autoPlay = false
@@ -289,11 +290,34 @@ fun computersTurn() {
             val candidateDeck = Deck(empty = true)
             for (card in candidateCards) candidateDeck.add(card)
 
+            val tableTopCard = table.topCard()
+
+            val sameSuit = mutableListOf<Card>()
+            val sameRank = mutableListOf<Card>()
+            for (card in candidateCards) {
+                if (card.suit == tableTopCard?.suit) sameSuit.add(card)
+                if (card.rank == tableTopCard?.rank) sameRank.add(card)
+            }
+
+
             // 5a) If there are 2 or more candidate cards with the same suit as the top card on the table, throw one of them at random
+            if (sameSuit.size >= 2) {
+                val randomCard = sameSuit.random()
+                val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+                computerPlayCard(randomCardIndex)
+                return
+            }
 
             // 5b) If the above isn't applicable, but there are 2 or more candidate cards with the same rank as the top card on the table, throw one of them at random
+            if (sameRank.size >= 2) {
+                val randomCard = sameRank.random()
+                val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+                computerPlayCard(randomCardIndex)
+                return
+            }
 
             // 5c) If nothing of the above is applicable, then throw any of the candidate cards at random.
+            computerPlayCard(computer.hand.deck.indexOf(computer.hand.deck.random()))
 
         }
 
@@ -323,12 +347,16 @@ fun getCandidateCards(): MutableList<Card> {
 
 fun getDoubleCards(deck: Deck): Array<MutableList<Card>>{
 
+    //Returns an array of 2 mutable lists
+    //First list is made of all the cards in the input deck that have the same suit
+    //Second list is made of all the cards in the input deck that have the same rank
+
     val cardsSameSuit = mutableListOf<Card>()
     val cardsSameRank = mutableListOf<Card>()
     val doubles = arrayOf(cardsSameSuit, cardsSameRank)
 
     for (card1 in deck.deck) {
-        val copyHand = computer.hand.copy()
+        val copyHand = deck.copy()
         copyHand.removeCard(deck.deck.indexOf(card1))
 
         val suit1 = card1.suit
