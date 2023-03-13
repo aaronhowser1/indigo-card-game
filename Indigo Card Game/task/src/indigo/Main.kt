@@ -3,7 +3,7 @@ package indigo
 import kotlin.math.min
 
 const val deckDebug = false
-const val autoPlay = true
+const val autoPlay = false
 
 enum class Rank(val rankName: String, val points: Int = 0) {
     A("A",1),
@@ -89,11 +89,13 @@ class Deck(empty: Boolean) {
 class Player(val name: String, val hand: Deck) {
     val wonCards = Deck(empty = true)
 
+    var additionalPoints = 0
+
     val score: Int
         get() {
             var cardPointTotal = 0
             for (card in wonCards.deck) cardPointTotal+=card.rank.points
-            return cardPointTotal
+            return cardPointTotal + additionalPoints
         }
 
 }
@@ -105,6 +107,8 @@ val remainingCards = Deck(empty = false)
 val table = Deck(empty = true)
 val player = Player("Player", Deck(empty = true))
 val computer = Player("Computer", Deck(empty = true))
+
+var firstPlayer: Player? = null
 
 var mostRecentWinner: Player? = null
 
@@ -130,13 +134,25 @@ fun play() {
         playTurn()
     }
 
+    //Game won, tally points
+    val playerCardCount = player.wonCards.deck.size
+    val computerCardCount = computer.wonCards.deck.size
+    val mostCards =
+        if (playerCardCount == computerCardCount) firstPlayer
+        else if (playerCardCount > computerCardCount) player
+        else computer
+
+    mostCards?.additionalPoints = 3
+
+    printTableCards()
+    if (computersTurn) clearTable(computer, printWinner = false) else clearTable(player, printWinner = false)
+
     println("Game Over")
 }
 
 fun playTurn() {
 
     if (remainingCards.deck.isEmpty() && player.hand.deck.isEmpty() && computer.hand.deck.isEmpty()) {
-        if (computersTurn) clearTable(computer, printWinner = false) else clearTable(player, printWinner = false)
         gameOver = true
         return
     }
@@ -237,8 +253,14 @@ fun clearTable(winner: Player, printWinner: Boolean = true) {
 fun playFirstCheck() {
     if (autoPlay) {computersTurn = false} else {
         when (inputFromPrompt("Play first?").lowercase()) {
-            "yes" -> computersTurn = false
-            "no" -> computersTurn = true
+            "yes" -> {
+                computersTurn = false
+                firstPlayer = player
+            }
+            "no" -> {
+                computersTurn = true
+                firstPlayer = computer
+            }
             else -> playFirstCheck()
         }
     }
