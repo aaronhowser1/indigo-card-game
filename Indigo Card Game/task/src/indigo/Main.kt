@@ -149,7 +149,18 @@ fun play() {
         mostCards?.additionalPoints = 3
     }
 
-    deckDebug(checkHand = false)
+    println("""
+                Player won cards:
+                    Size: ${player.wonCards.deck.size}
+                    Cards: ${player.wonCards.deck}
+                    Additional points: ${player.additionalPoints}
+                    Total score: ${player.score}
+                Computer won cards:
+                    Size: ${computer.wonCards.deck.size}
+                    Cards: ${computer.wonCards.deck}
+                    Additional points: ${computer.additionalPoints}
+                    Total score: ${computer.score}
+            """.trimIndent())
 
     println("Game Over")
 }
