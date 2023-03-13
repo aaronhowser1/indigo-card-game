@@ -1,9 +1,9 @@
 package indigo
 
 import kotlin.math.min
-import kotlin.random.Random
 
 const val deckDebug = false
+const val computerDebug = true
 const val autoPlay = false
 
 enum class Rank(val rankName: String, val points: Int = 0) {
@@ -236,15 +236,17 @@ fun computersTurn() {
 
         // 1) If there is only one card in hand, put it on the table
         computerPlayCard(0)
+        if (computerDebug) println("1) Computer playing its only card")
     } else {
 
         val candidateCards = getCandidateCards()
+        println("Computer candidate cards: ${candidateCards.joinToString(" ")}")
         if (candidateCards.size == 1) {
 
             // 2) If there is only one candidate card, put it on the table
             val candidateCard = candidateCards.first()
             val candidateCardIndex = computer.hand.deck.indexOf(candidateCard)
-
+            if (computerDebug) println("2) Computer playing its only candidate card")
             computerPlayCard(candidateCardIndex)
             return
         }
@@ -252,6 +254,8 @@ fun computersTurn() {
         // 3) If there are no cards on the table:
         // 4) If there are cards on the table but no candidate cards, use the same tactics as in step 3:
         if (table.deck.size == 0 || candidateCards.size == 0) {
+
+            if (computerDebug) println("3) 4) ${table.deck.size} cards on table, and ${candidateCards.size} candidate cards")
 
             val doubles = getDoubleCards(computer.hand)
             val cardsSameSuit = doubles.first()
@@ -261,6 +265,8 @@ fun computersTurn() {
             if (cardsSameSuit.isNotEmpty()) {
                 val randomCard = cardsSameSuit.random()
                 val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+
+                if (computerDebug) println("3a) Choosing card $randomCard from cardsSameSuit: ${cardsSameSuit.joinToString(" ")}")
 
                 computerPlayCard(randomCardIndex)
                 return
@@ -273,6 +279,8 @@ fun computersTurn() {
                 val randomCard = cardsSameRank.random()
                 val randomCardIndex = computer.hand.deck.indexOf(randomCard)
 
+                if (computerDebug) println("3b) Choosing card $randomCard from cardsSameRank: ${cardsSameRank.joinToString(" ")}")
+
                 computerPlayCard(randomCardIndex)
                 return
             }
@@ -280,12 +288,17 @@ fun computersTurn() {
             // 3c) If there are no cards in hand with the same suit or rank, throw any card at random
             val randomCard = computer.hand.deck.random()
             val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+
+            if (computerDebug) println("3c) No cards with same suit or rank, so choosing card at random")
+
             computerPlayCard(randomCardIndex)
             return
         }
 
         // 5) If there are two or more candidate cards:
         if (candidateCards.size >= 2) {
+
+            if (computerDebug) println("5) There are ${candidateCards.size} candidate cards")
 
             val candidateDeck = Deck(empty = true)
             for (card in candidateCards) candidateDeck.add(card)
@@ -304,6 +317,9 @@ fun computersTurn() {
             if (sameSuit.size >= 2) {
                 val randomCard = sameSuit.random()
                 val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+
+                if (computerDebug) println("5a) There are ${sameSuit.size} cards with the same suit as the top card ($tableTopCard): ${sameSuit.joinToString(" ")}")
+
                 computerPlayCard(randomCardIndex)
                 return
             }
@@ -312,13 +328,17 @@ fun computersTurn() {
             if (sameRank.size >= 2) {
                 val randomCard = sameRank.random()
                 val randomCardIndex = computer.hand.deck.indexOf(randomCard)
+
+                if (computerDebug) println("5b) There are ${sameRank.size} cards with the same rank as the top card ($tableTopCard): ${sameRank.joinToString(" ")}")
+
                 computerPlayCard(randomCardIndex)
                 return
             }
 
             // 5c) If nothing of the above is applicable, then throw any of the candidate cards at random.
+            if (computerDebug) println("5c")
             computerPlayCard(computer.hand.deck.indexOf(computer.hand.deck.random()))
-
+            return
         }
 
     }
