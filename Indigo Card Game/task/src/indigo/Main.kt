@@ -109,7 +109,6 @@ val player = Player("Player", Deck(empty = true))
 val computer = Player("Computer", Deck(empty = true))
 
 var firstPlayer: Player? = null
-
 var mostRecentWinner: Player? = null
 
 fun main() {
