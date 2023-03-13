@@ -232,10 +232,24 @@ fun playersTurn() {
 
 fun computersTurn() {
     if (computer.hand.deck.size == 1) {
-        computerPlayOnlyCard()
+
+        //If there is only one card in hand, put it on the table
+        computerPlayCard(0)
+
     } else {
 
         val candidateCards = computerGetCandidateCards()
+
+        if (candidateCards.size == 1) {
+
+            //If there is only one candidate card, put it on the table
+            val candidateCard = candidateCards.first()
+            val candidateCardIndex = computer.hand.deck.indexOf(candidateCard)
+
+            computerPlayCard(candidateCardIndex)
+            return
+        }
+
         val doubles = computerGetDoubleCards()
         val cardsSameSuit = doubles.first()
         val cardsSameRank = doubles.last()
@@ -244,11 +258,11 @@ fun computersTurn() {
     }
 }
 
-fun computerPlayOnlyCard() {
-    println("Computer plays ${computer.hand.getCard(0)}")
-    val cardsMatch = checkCardMatch(computer.hand.getCard(0), table.deck.lastOrNull())
+fun computerPlayCard(index: Int) {
+    println("Computer plays ${computer.hand.getCard(index)}")
+    val cardsMatch = checkCardMatch(computer.hand.getCard(index), table.deck.lastOrNull())
 
-    table.takeCard(0, computer.hand)
+    table.takeCard(index, computer.hand)
 
     if (cardsMatch) {
         clearTable(computer)
