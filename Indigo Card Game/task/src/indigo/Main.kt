@@ -101,7 +101,7 @@ class Player(val name: String, val hand: Deck) {
 }
 
 var computersTurn = false
-var gameOver = ""
+var gameOver = false
 
 val remainingCards = Deck(empty = false)
 val table = Deck(empty = true)
@@ -129,7 +129,7 @@ fun play() {
     println("Initial cards on the table: ${table.deck.joinToString(" ")}")
 
 
-    while (gameOver == "") {
+    while (!gameOver) {
         playTurn()
     }
 
@@ -152,7 +152,7 @@ fun play() {
 fun playTurn() {
 
     if (remainingCards.deck.isEmpty() && player.hand.deck.isEmpty() && computer.hand.deck.isEmpty()) {
-        gameOver = "done"
+        gameOver = true
         return
     }
 
@@ -202,7 +202,7 @@ fun playersTurn() {
         }
 
         if (cardNumber.lowercase() == "exit") {
-            gameOver = "exit"
+            gameOver = true
             return
         }
 
