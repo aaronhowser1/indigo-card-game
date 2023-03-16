@@ -3,8 +3,8 @@ package indigo
 import kotlin.math.min
 
 const val deckDebug = false
-const val computerDebug = true
-const val autoPlay = false
+const val computerDebug = false
+const val autoPlay = true
 
 enum class Rank(val rankName: String, val points: Int = 0) {
     A("A",1),
@@ -35,7 +35,7 @@ data class Card(val rank: Rank, val suit: Suit) {
     }
 }
 
-data class Deck(val empty: Boolean) {
+class Deck(val empty: Boolean) {
     val deck = mutableListOf<Card>()
 
     init {
@@ -345,6 +345,7 @@ fun computersTurn() {
 }
 
 fun computerPlayCard(index: Int) {
+    println(computer.hand.deck.joinToString(" "))
     println("Computer plays ${computer.hand.getCard(index)}")
     val cardsMatch = checkCardMatch(computer.hand.getCard(index), table.deck.lastOrNull())
 
@@ -376,8 +377,8 @@ fun getDoubleCards(deck: Deck): Array<MutableList<Card>>{
     val doubles = arrayOf(cardsSameSuit, cardsSameRank)
 
     for (card1 in deck.deck) {
-        val copyHand = deck.copy()
-        copyHand.removeCard(deck.deck.indexOf(card1))
+        val copyHand = Deck(empty = true)
+        for (card in deck.deck) if (card != card1) copyHand.add(card)
 
         val suit1 = card1.suit
         val rank1 = card1.rank
