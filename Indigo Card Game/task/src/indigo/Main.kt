@@ -4,7 +4,7 @@ import kotlin.math.min
 
 const val deckDebug = false
 const val computerDebug = false
-const val autoPlay = true
+const val autoPlay = false
 
 enum class Rank(val rankName: String, val points: Int = 0) {
     A("A",1),
@@ -232,6 +232,7 @@ fun playersTurn() {
 }
 
 fun computersTurn() {
+    println(computer.hand.deck.joinToString(" "))
     if (computer.hand.deck.size == 1) {
 
         // 1) If there is only one card in hand, put it on the table
@@ -240,7 +241,7 @@ fun computersTurn() {
     } else {
 
         val candidateCards = getCandidateCards()
-        println("Computer candidate cards: ${candidateCards.joinToString(" ")}")
+        if (computerDebug) println("Computer candidate cards: ${candidateCards.joinToString(" ")}")
         if (candidateCards.size == 1) {
 
             // 2) If there is only one candidate card, put it on the table
@@ -345,7 +346,6 @@ fun computersTurn() {
 }
 
 fun computerPlayCard(index: Int) {
-    println(computer.hand.deck.joinToString(" "))
     println("Computer plays ${computer.hand.getCard(index)}")
     val cardsMatch = checkCardMatch(computer.hand.getCard(index), table.deck.lastOrNull())
 
